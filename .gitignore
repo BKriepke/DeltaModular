@@ -1,19 +1,11 @@
 .vscode/
 
-Oldfiles/
+CPP/Oldfiles/
 
 CPP/*.txt
 
-.ipynb_checkpoints/
+/Sage/**
 
-Sage/r=2/
-
-Sage/results/
-
-Sage/*.txt
-
-*.pdf
-Sage/Plots.ipynb
-Sage/r=2-Copy1.ipynb
-
-Sage/
+!/Sage/helpfunctions.sage
+!/Sage/singleExample.sage
+!/Sage/inequiv_hnfs.sage
