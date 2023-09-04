@@ -1,6 +1,6 @@
 # Delta-modular
 
-Sage code, C++-code and resulting data from implementing the algorithm 1 described in the paper **On the size of integer programs with bounded non-vanishing subdeterminants**. This is joint work with Gohar Kyureghyan and Matthias Schymura.
+Sage code, C++-code and resulting data from implementing Algorithm 1 described in the paper **On the size of integer programs with bounded non-vanishing subdeterminants**. This is joint work with Gohar Kyureghyan and Matthias Schymura.
 
 
 ## Content:
