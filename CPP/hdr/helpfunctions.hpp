@@ -7,7 +7,8 @@
 #include <iostream>
 
 
-
+// Hashfunction needed to have a std::unordered_set of std::vector<int>
+// https://stackoverflow.com/a/29855973
 struct VectorHash {
     size_t operator()(const std::vector<int>& v) const;
 };

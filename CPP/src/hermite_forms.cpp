@@ -13,10 +13,10 @@
 
 std::vector<Eigen::MatrixXi> hnfsFromFile(int Delta, int r) {
     std::string filename = "../data/hnfs/"+std::to_string(r)+"_"+std::to_string(Delta)+".txt";
-    Eigen::MatrixXi A = Eigen::MatrixXi::Zero(r,r);
     std::ifstream fin (filename);
 
     std::vector<Eigen::MatrixXi> H;
+    Eigen::MatrixXi tmp = Eigen::MatrixXi::Zero(r,r);
     // https://stackoverflow.com/a/36342394
     if (fin.is_open()) {
         while(!fin.eof()) {
@@ -24,10 +24,10 @@ std::vector<Eigen::MatrixXi> hnfsFromFile(int Delta, int r) {
                 for (int col = 0; col < r; col++) {
                     int item;
                     fin >> item;
-                    A(row, col) = item;
+                    tmp(row, col) = item;
                 }
             }
-            if(!fin.eof()) H.push_back(A); //check that you didnt try to read end of file
+            if(!fin.eof()) H.push_back(tmp); //check that you didnt try to read end of file
         }
         fin.close();
     }
@@ -36,29 +36,33 @@ std::vector<Eigen::MatrixXi> hnfsFromFile(int Delta, int r) {
 
 
 std::vector<Eigen::MatrixXi> findHermiteForms(int Delta, int r) {
-    std::vector<Eigen::MatrixXi> allHNF = hnfsFromFile(Delta, r);
-    if(allHNF.size() > 0) return allHNF;
+    std::vector<Eigen::MatrixXi> H = hnfsFromFile(Delta, r);
+    if(H.size() > 0) return H;
     // else it didnt find the file, so we manually compute the relevant hermite forms
     // will be much less efficient as we do not check for as much equivalence
     std::cout << "Warning: File with inequivalent HNFs was not found." << std::endl;
+    // Compute sorted diagonals that multiply to Delta
     std::vector<std::vector<int>> diags = sortedDiags(Delta, r);
+    // Successively augment with columns of the form
+    // [entries < d[n], d[n], 0, ..., 0]
     for(auto d: diags) {
         Eigen::MatrixXi v = Eigen::MatrixXi::Zero(r, 1);
         v(0,0) = d[0];
-        std::stack<Eigen::Matrix<int, -1, -1>> viableMatrices;
-        viableMatrices.push(v);
+        std::stack<Eigen::Matrix<int, -1, -1>> matrixStack;
+        matrixStack.push(v);
 
-        while(!viableMatrices.empty()) {
-            Eigen::MatrixXi M = viableMatrices.top();
-            viableMatrices.pop();
+        while(!matrixStack.empty()) {
+            Eigen::MatrixXi M = matrixStack.top();
+            matrixStack.pop();
             int n = M.cols();
             std::vector<int> entries;
-            if(n+1==r && d[n] == Delta) entries = range(d[n]/2+1); //last column and diagonal is (1,1,..,Delta), removes equivalent HNFs
+            if(n+1==r && d[n] == Delta) entries = range(d[n]/2+1); //last column and diagonal is (1,1,..,Delta), applies operation 2 described in paper
             else entries = range(d[n]);
             std::vector<std::vector<int>> L(n, entries);
             std::vector<std::vector<int>> K = cartesian(L);
             for(auto I: K) {
-                if(n+1==r && d[n] == Delta && !std::is_sorted(I.begin(), I.end())) continue;
+                if(n+1==r && d[n] == Delta && !std::is_sorted(I.begin(), I.end())) continue;  // operation 2
+                // J is columns [entries < d[n], d[n], 0, ..., 0]
                 Eigen::MatrixXi J = Eigen::MatrixXi::Zero(r, 1);
                 for(int i = 0; i < n; i++) {
                     J(i, 0) = I[i];
@@ -67,17 +71,17 @@ std::vector<Eigen::MatrixXi> findHermiteForms(int Delta, int r) {
                 Eigen::MatrixXi res(M.rows(), n+1);
                 res << M, J;
                 if(n+1 == r) {
-                    allHNF.push_back(res);
+                    H.push_back(res);
                 }
                 else {
-                    viableMatrices.push(res);
+                    matrixStack.push(res);
                 }
             }
         }
         
     }
-    removeEquivalent(allHNF);
-    return allHNF;
+    removeEquivalent(H);
+    return H;
 }
 
 

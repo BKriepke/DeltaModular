@@ -9,7 +9,7 @@
 
 float det(Eigen::MatrixXf &B);
 
-bool checkIndRowsCols(Eigen::MatrixXf &M, int Delta, std::vector<int> &rows, std::vector<int> &cols, bool generic);
+bool checkRowsCols(Eigen::MatrixXf &M, int Delta, std::vector<int> &rows, std::vector<int> &cols, bool generic);
 
 bool checkCols(Eigen::MatrixXf& M, int Delta, std::vector<int> &cols, bool generic);
 

@@ -17,14 +17,15 @@
 
 
 
-
-void incCnt(int& counter, unsigned int s) {
+// increases counter and prints progress update
+void increaseCounter(int& counter, unsigned int s) {
     counter++;
     if(counter % 10 == 0) {
         std::cout << "HNFs checked: " << counter << " / " << s << std::endl;
     }
 }
 
+// measures time since last time this function was called. Useful for some testing
 int timeSinceLast(std::chrono::_V2::system_clock::time_point &last) {
     auto now = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(now-last);
@@ -32,7 +33,7 @@ int timeSinceLast(std::chrono::_V2::system_clock::time_point &last) {
     return duration.count();
 }
 
-
+// reads g(Delta, r) or h(Delta, r) from file. Throws error if the value does not exist
 int fetchMaxSize(int Delta, int r, bool generic) {
     std::string filename = "../data/";
     if(generic) filename += "Generic/";
@@ -57,7 +58,8 @@ int fetchMaxSize(int Delta, int r, bool generic) {
     throw std::runtime_error(std::string("File '" + filename + "' with pre-computed values was not found"));
 }
 
-
+// prints the std::vector of matrices D obtained from oneDelta(...) to a file
+// also prints g(Delta, r) or h(Delta, r) to file
 void printToFile(int Delta, int r, bool generic, bool singleExample, std::vector<Eigen::MatrixXi> result) {
     std::fstream myfile;
     std::string filename = "../data/";
@@ -82,6 +84,10 @@ void printToFile(int Delta, int r, bool generic, bool singleExample, std::vector
     myfile.close();
 }
 
+// either computes g(Delta, r) or h(Delta, r) and returns a (std::vector containing only one) matrix D achieving this size
+// or reads the corresponding value from file and returns a list (std::vector) of matrices D achieving this size
+// this list is guaranteed to contain at least one representative of every equivalence class
+// the list will in general contain more than one representative per class
 std::vector<Eigen::MatrixXi> oneDelta(int Delta, int r, bool generic, bool singleExample) {
 
     int targetSize = 0;
@@ -101,6 +107,11 @@ std::vector<Eigen::MatrixXi> oneDelta(int Delta, int r, bool generic, bool singl
 
     std::vector<Eigen::MatrixXi> result;
 
+    // parallelize the for-loop. Works well in the generic setting, as most hypergraphs have roughly the same size and 
+    // therefore most threads take the same time
+    // does not work as well in the non-generic setting, most of the time will be spent waiting on a single thread
+    // corresponding to one very big hypergraph with a lot of maximum cliques
+    // might be fruitful to instead parallelize hclique itself, which is a DFS algorithm
     omp_set_num_threads(56);
     #pragma omp parallel for schedule(dynamic) 
     for(unsigned int i = 0; i < HNFs.size(); i++) {
@@ -108,9 +119,7 @@ std::vector<Eigen::MatrixXi> oneDelta(int Delta, int r, bool generic, bool singl
         std::vector<Eigen::Matrix<int,-1,1>> L = Ax0modn(A, Delta, generic);
         Eigen::MatrixXi D = matrixFromColumns(L);
         Eigen::MatrixXf Df = D.cast<float>();           // Eigen has no determinant function for integer matrices
-        // auto timestamp = std::chrono::system_clock::now();
         HyperGraph H = buildHyperGraph(Df, Delta, generic);
-        // std::cout << "Time spent building graph: " << timeSinceLast(timestamp) << std::endl << std::endl;
         std::vector<int> v;
         std::vector<std::vector<int>> w;
         if(singleExample) {
@@ -119,14 +128,9 @@ std::vector<Eigen::MatrixXi> oneDelta(int Delta, int r, bool generic, bool singl
         else {
             w = H.hCliqueMainAll(targetSize);
         }
-        // std::cout << A << std::endl;
-        // std::cout << "Time for finding clique: " << timeSinceLast(timestamp) << std::endl << std::endl;
-        // printMySet(H.edges[3]);
-        // H.print();
-        // if(!singleExample) std::cout << "Cliques found: " << w.size() << std::endl;
         #pragma omp critical 
         {
-            incCnt(counter, s);
+            increaseCounter(counter, s);
             if(singleExample) {
                 if(v.size() > bestSoFar) {
                     bestSoFar = v.size();
@@ -156,6 +160,7 @@ std::vector<Eigen::MatrixXi> oneDelta(int Delta, int r, bool generic, bool singl
 int main() {
     Eigen::initParallel();
 
+    // read in parameters from command line
     int startDelta, endDelta, r;
     bool generic, singleExample, print;
     std::cout << "Enter start Delta: ";
@@ -173,11 +178,14 @@ int main() {
 
     for(int Delta = startDelta; Delta <= endDelta; Delta++) {
         auto start = std::chrono::system_clock::now();
+
         std::vector<Eigen::MatrixXi> result = oneDelta(Delta, r, generic, singleExample);
         if(print) printToFile(Delta, r, generic, singleExample, result);
+
         auto stop = std::chrono::system_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop-start);
 
+        // prints results from computations to command line
         std::cout << "Delta = " << Delta << std::endl;
         std::cout << "Time taken in seconds: " << duration.count() << std::endl;
         if(singleExample) {

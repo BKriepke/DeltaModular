@@ -4,7 +4,7 @@
 #include <vector>
 #include <eigen34/Eigen/Eigen>
 
-
+// reads HNFs from file which were pre-computed with Sage
 std::vector<Eigen::MatrixXi> hnfsFromFile(int Delta, int r);
 
 
@@ -13,9 +13,9 @@ std::vector<Eigen::MatrixXi> hnfsFromFile(int Delta, int r);
 std::vector<Eigen::MatrixXi> findHermiteForms(int Delta, int r);
 
 
+// Code below is not needed, assuming HNFs were pre-computed with Sage
 
-// diags
-
+// find relevant diags
 std::vector<std::vector<int>> findDiags(int Delta, int r, int min);
 
 std::vector<std::vector<int>> sortedDiags(int Delta, int r);

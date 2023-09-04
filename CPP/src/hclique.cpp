@@ -165,13 +165,18 @@ Graph HyperGraph::buildGraph(std::vector<int> Q, std::vector<int> C) {
     std::vector<int> v;
     Graph G(n);
     // could also use downward-closed property here and go through all subedges of Q of size <= r-2
-    // not sure how much more efficient that would be
+    // find all subsets {q_1, ..., q_r-2} of Q
     std::vector<std::vector<int>> subsetsQ = subsets(Q, r-2);
     for(auto & subedge: subsetsQ) {
+        // add two more entries to subedges, so later we can just assign values a,b
+        // instead of having to push_back and pop_back
         subedge.push_back(-1);
         subedge.push_back(-1);
     }
 
+    // for all a, b in C checks whether {a,b} is edge in H. If yes, then
+    // checks whether {q_1, ..., q_r-2, a, b} is hyperedge for all choices {q_i} in Q
+    // if yes, add edge ab in graph G
     v.push_back(-1);
     v.push_back(-1);
     for(int i = 0; i < n; i++) {
@@ -209,7 +214,6 @@ void HyperGraph::print(std::ostream& stream) {
     stream << "Number of nodes: " << n << std::endl;
     for(int i = 2; i <= r; i++) {
         stream << "Number of edges of size " << i << ": " << edges[i].size() << std::endl;
-        // printMySet(edges[i], stream);
         stream << std::endl;
     }
 }

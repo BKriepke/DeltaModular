@@ -22,8 +22,6 @@ bool Graph::isEdge(int v, int w) {
     return std::find(adj[v].begin(), adj[v].end(), w) != adj[v].end();
 }
  
-// Assigns colors (starting from 0) to all vertices and returns
-// the number of colors used
 int Graph::greedyColoringNumber()
 {
     std::vector<int> result(n);

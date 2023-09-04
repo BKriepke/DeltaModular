@@ -105,6 +105,7 @@ void allRepresentants(std::vector<int> v, std::vector<Eigen::Matrix<int, -1, 1>>
     std::vector<std::vector<int>> K = cartesian(w);
     for(auto I: K) {
         Eigen::Matrix<int, -1, 1> M(r, 1);
+        // M = (I_r, ..., I_1) where I_k = v_k mod Delta
         for(int i = 0; i < r; i++) {
             M(i, 0) = I[r-i-1];
         } 
@@ -114,6 +115,7 @@ void allRepresentants(std::vector<int> v, std::vector<Eigen::Matrix<int, -1, 1>>
     }
 }
 
+// Solves Ax=0 mod n with matrix A and returns all relevant integer solutions
 std::vector<Eigen::Matrix<int,-1,1>> Ax0modn(Eigen::MatrixXi &A, int n, bool generic) {
     int r = A.cols();
     std::vector<Eigen::Matrix<int,-1,1>> L;
@@ -128,6 +130,8 @@ std::vector<Eigen::Matrix<int,-1,1>> Ax0modn(Eigen::MatrixXi &A, int n, bool gen
 
     std::vector<int> v;
     while(!buildingSols.empty()) {
+        // v = [v_1, ..., v_k] corresponds to solution (*, .., *, v_k, ..., v_1) where values * have not been computed yet
+        // Compute one more value, then put back on stack or add to list L of all solutions
         v = buildingSols.top();
         buildingSols.pop();
         int k = v.size();

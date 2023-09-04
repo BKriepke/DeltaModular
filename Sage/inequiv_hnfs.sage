@@ -30,7 +30,8 @@ def HNFs(Delta, r):
             D = matrixStack.pop()
             n = D.ncols()
             isDiag = isDiagonal(D)
-            # if all other columns are just multiples of unit vectors, then the entries of this column can be reduced
+            # if all other columns are just multiples of unit vectors then the entries of this column can be reduced
+            # by operation 2 described in paper
             if isDiag: entries = list(range(0, d[n]//2+1))
             else: entries = list(range(0, d[n]))
             for I in itertools.product(entries, repeat=n):
@@ -55,9 +56,10 @@ r = 3
 startDelta = 2
 endDelta = 50
 for Delta in range(startDelta, endDelta+1):
+    # compute HNFs
     L = HNFs(Delta, r)
-    #print to file
-    fileName = "..data/hnfs/"+str(r)+"_"+str(Delta)+".txt"
+    # print to file
+    fileName = "../data/hnfs/"+str(r)+"_"+str(Delta)+".txt"
     with open(fileName, "ab") as f:
         for l in L:
             a = l.numpy()

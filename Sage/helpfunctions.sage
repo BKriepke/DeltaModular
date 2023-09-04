@@ -9,6 +9,7 @@ def remove(L):
     Lc = set(L)
     p = Permutations(r)
     d = [1, -1]
+    # compute all possible options C=D*P with D=diag(+-1) and P permutation matrix
     CList = []
     for diag in itertools.product(d, repeat=r):
         # first entry of D can be positive
@@ -49,7 +50,7 @@ def allHNF2(Delta):
                             [0, d[1]]])
             H.append(A)
                     
-    H = remove(H)            
+    H = remove(H)
     return H
 
 def findKernelModDelta(A, Delta):
@@ -86,7 +87,10 @@ def removeMultiples(cols):
     return cols
 
 def buildC(cols, Delta, single):
-    # Builds the graph G_2 and then finds a maximum clique in that graph
+    # Builds the graph G_2
+    # if single==True, then finds a single maximum clique in that graph
+    # otherwise find all of them
+    # return the corresponding totally generic Delta-bound matrices C
     
     D = cols[0]
     for v in cols[1:]: D = D.augment(v)
@@ -117,12 +121,18 @@ def buildC(cols, Delta, single):
         return [D.matrix_from_columns(K) for K in Cs]
 
 def matrixInterval(k, ak, bk):
+    # Computes matrix
+    # [k   ... k]
+    # [a_k ... b_k]
+    # where the dots represent ever integer a_k <= i <= b_k coprime to k
     I = [i for i in range(ak, bk+1) if gcd(k, i) == 1]
     A = matrix(ZZ, [len(I)*[k],
                     I])
     return A
 
 def M(a,b):
+    # takes lists a, b
+    # computes matrix M(a,b) introduced before Prop 3.2
     D = matrix(ZZ, [[0],
                     [1]])
     for i in range(len(a)):
@@ -130,6 +140,8 @@ def M(a,b):
     return D
 
 def families1to3(Delta):
+    # checks if Delta belongs to families (F1)-(F3) and if yes, return a corresponding matrix
+    # otherwise returns None
     if Delta+1 == Delta.next_prime():
         return M([0], [Delta])
     if Delta+2 == Delta.next_prime():
@@ -142,6 +154,7 @@ def families1to3(Delta):
             return M([0, 4*s+3, 9*s+7], [7*s+5, 10*s+7, 12*s+8])
            
 def sortMatrix(A):
+    # scales all columns so that first entry is positive and then sorts lexicographically by rows
     I = identity_matrix(A.ncols())
     for i in range(A.ncols()):
         if A[0][i] < 0: I[i, i] = -1
@@ -152,8 +165,8 @@ def sortMatrix(A):
 
 def invariantVector(A, Delta):
     # computes list v
-    # with v_i = number of minors that have absolute value i, i=1, .., Delta
-    # vector is invariant under equivalence relation
+    # with v_i = number of minors of A that have absolute value i, i=1, .., Delta
+    # vector v is invariant under equivalence relation
     n = A.ncols()
     r = A.nrows()
     I = list(range(n))
@@ -167,16 +180,21 @@ def invariantVector(A, Delta):
     return v
 
 def maxDigits(A):
+    # returns max digits needed to write every entry in matrix A
     m = max(max(A))
     return len(str(m))
 
 def fetchTargetSize(Delta):
+    # returns g(Delta, 2)-2, as this is the size of the maximum cliques that are relevant
+    # assumes that this value exists in the file
     with open("../data/Generic/r=2/values.txt", 'r') as f:
         for line in f:
             [a, b] = [int(x) for x in line.split()]
             if a == Delta: return b-2
 
 def singleExample(Delta, upperBound):
+    # finds g(Delta, 2) and returns a single example matrix D achieving this value
+    # Cf algorithm 1 in paper
     r = 2
     single = True
     H = allHNF2(Delta)
@@ -200,6 +218,9 @@ def singleExample(Delta, upperBound):
     return D
 
 def allExamples(Delta):
+    # reads g(Delta, 2) from file and then returns a list of matrices D which achieve this value
+    # this list is guaranteed to contain at least one representative of every equivalence class
+    # but will in general contain more than a single representative per class
     r = 2
     single = False
     H = allHNF2(Delta)

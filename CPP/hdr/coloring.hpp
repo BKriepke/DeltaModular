@@ -7,7 +7,7 @@
 class Graph
 {
     int n;    // No. of vertices
-    std::vector<std::vector<int>> adj;
+    std::vector<std::vector<int>> adj;      // adjacency matrix
 public:
     // Constructor and destructor
     Graph(int n);
@@ -18,7 +18,8 @@ public:
     // checks if there is an edge between two nodes
     bool isEdge(int v, int w);
  
-    // Returns greedy coloring number of the vertices
+    // Assigns colors (starting from 0) to all vertices and returns
+    // the number of colors used
     int greedyColoringNumber();
 };
 

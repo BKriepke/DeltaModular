@@ -8,7 +8,6 @@
 
 
 
-#define contains(x) count(x)
 
 
 
@@ -32,7 +31,7 @@ float det(Eigen::MatrixXf &B) {
 	return B.determinant();
 }
 
-bool checkIndRowsCols(Eigen::MatrixXf &M, int Delta, std::vector<int> &rows, std::vector<int> &cols, bool generic) {
+bool checkRowsCols(Eigen::MatrixXf &M, int Delta, std::vector<int> &rows, std::vector<int> &cols, bool generic) {
 	int k = rows.size();
 	int n = cols.size();
 	assert(k == n);
@@ -61,7 +60,7 @@ bool checkCols(Eigen::MatrixXf& M, int Delta, std::vector<int> &cols, bool gener
 		v = subsets(rows, k);
 	}
 	for(auto it = v.begin(); it != v.end(); it++) {
-		if (!checkIndRowsCols(M, Delta, *it, cols, generic)) {
+		if (!checkRowsCols(M, Delta, *it, cols, generic)) {
 			return false;
 		}
 	}
@@ -77,7 +76,10 @@ HyperGraph buildHyperGraph(Eigen::MatrixXf& M, int Delta, bool generic) {
     // add all edges, starting from size 1 (aka nodes)
 	// uses that the graph is downward-closed
 	for(int i = 1; i < r; i++) {
-		//current edges have size i
+		// current edges have size i
+		// if e is edge, then for e union {c} to be edge, we need to check that 
+		// - {e_1, ..., e_i-1, c} is edge (which has size i and was already checked)
+		// - all submatrices with the columns e union {c} are (totally generic) Delta-bound
 		std::vector<std::vector<int>> subedgeIndices = subsets(range(i), i-1);
 		for(std::vector<int> e: H.edges[i]) {
 

@@ -67,7 +67,7 @@ std::vector<std::vector<int>> cartesian( std::vector<std::vector<int> >& v ) {
 }
 
 
-
+// returns {0, 1, 2, ..., n-1}
 std::vector<int> range(int n) {
     std::vector<int> v(n);
     std::iota(std::begin(v), std::end(v), 0); //0 is the starting number
@@ -79,6 +79,7 @@ std::vector<int> range(int n) {
 
 // Puts all "subsets" of given size `left` of the vector arr into the vector v
 // from stackoverflow at some point
+// help function for subsets(...)
 void subsetsHelp(std::vector<int> arr, int left, int index, std::vector<int> &l, std::vector<std::vector<int>> &v)  {
     if(left==0){
         v.push_back(l);
@@ -115,6 +116,7 @@ size_t VectorHash::operator()(const std::vector<int>& v) const {
 void sortMatrix(Eigen::MatrixXi& A) {
     int m = A.cols();
     std::vector<int> v = range(m);
+    // makes first nonzero entry in every column positive
     for(int i = 0; i < m; i++) {
         int j = 0;
         while(j < A.rows() && A(j, i) == 0) j++; 
@@ -127,6 +129,7 @@ void sortMatrix(Eigen::MatrixXi& A) {
             continue;
         }
     }
+    // sorts the columns lexicographically
     std::sort(v.begin(), v.end(),
         [&](int x, int y) -> bool {
             int j = 0;
@@ -150,7 +153,7 @@ int gcd(int a, int b) {
 }
 
 
-
+// puts vectors from L into a matrix as columns
 Eigen::MatrixXi matrixFromColumns(std::vector<Eigen::Matrix<int,-1,1>> &L) {
     Eigen::MatrixXi D = L[0];
     D.conservativeResize(D.rows(), L.size());
@@ -173,7 +176,7 @@ std::vector<int> vectorIndexedByAnother(std::vector<int> v, std::vector<int> w) 
 
 
 
-
+// returns the construction (e_1, ..., e_r, (Delta, ..., Delta))
 Eigen::MatrixXi trivialConstruction(int Delta, int r) {
     Eigen::MatrixXi A = Eigen::MatrixXi::Zero(r, r+1);
     for(int i=0; i<r; i++) {

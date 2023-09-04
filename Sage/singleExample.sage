@@ -2,10 +2,12 @@ import numpy
 
 load('helpfunctions.sage')
 
+# calculates g(Delta, 2) and returns one matrix D achieving this value
+# for each startDelta <= Delta <= endDelta
 # edit to change the values the script calculates
-startDelta = 2
-endDelta = 400
-valueFile = open('..data/Generic/r=2/values.txt', 'a+')
+startDelta = 401
+endDelta = 450
+valueFile = open('../data/Generic/r=2/values.txt', 'a+')
 for Delta in range(startDelta, endDelta+1):
     Delta = Integer(Delta)
     print("Current Delta: {:} ".format(Delta))
@@ -20,7 +22,7 @@ for Delta in range(startDelta, endDelta+1):
     print("One matrix with that length: ")
     print(D)
     
-    specificFile = open("..data/Generic/r=2/SingleExample/Delta="+str(Delta)+".txt", 'w+')
+    specificFile = open("../data/Generic/r=2/SingleExample/Delta="+str(Delta)+".txt", 'w+')
     d = D.numpy()
     digits = maxDigits(D)
     numpy.savetxt(specificFile, d, fmt = '%'+str(digits)+'i', delimiter=", ")
