@@ -166,7 +166,7 @@ def sortMatrix(A):
 def invariantVector(A, Delta):
     # computes list v
     # with v_i = number of minors of A that have absolute value i, i=1, .., Delta
-    # vector v is invariant under equivalence relation
+    # vector v is invariant under equivalence relation defined in Definition 4.5
     n = A.ncols()
     r = A.nrows()
     I = list(range(n))
