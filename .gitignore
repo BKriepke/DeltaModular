@@ -8,4 +8,5 @@ CPP/*.txt
 
 !/Sage/helpfunctions.sage
 !/Sage/singleExample.sage
+!/Sage/allExamples.sage
 !/Sage/inequiv_hnfs.sage
